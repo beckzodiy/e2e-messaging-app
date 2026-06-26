@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: e2e-messaging-backend
+    env: python
+    buildCommand: |
+      cd backend
+      pip install -r requirements.txt
+      python manage.py migrate
+    startCommand: cd backend && gunicorn config.wsgi:application
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: e2e-messaging-db
+          property: connectionString
+
+  - type: web
+    name: e2e-messaging-frontend
+    env: node
+    region: oregon
+    buildCommand: |
+      cd frontend
+      npm install
+      npm run build
+    startCommand: cd frontend && npm install -g serve && serve -s build -l 3000
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://e2e-messaging-backend.onrender.com/api
+      - key: REACT_APP_WS_URL
+        value: wss://e2e-messaging-backend.onrender.com
+
+databases:
+  - name: e2e-messaging-db
