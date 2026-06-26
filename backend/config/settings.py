@@ -17,7 +17,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'users',
-    'messages',
+    'messages.apps.MessagesConfig',
 ]
 
 MIDDLEWARE = [
