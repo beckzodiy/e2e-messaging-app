@@ -8,6 +8,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,*.onrender.com', cast=Csv())
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,6 +52,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 if os.environ.get('DATABASE_URL'):
     import dj_database_url
@@ -97,3 +99,9 @@ CORS_ALLOWED_ORIGINS = [
     'https://e2e-messaging-frontend.vercel.app',
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}

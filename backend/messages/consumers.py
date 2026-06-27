@@ -1,15 +1,35 @@
 import json
 import asyncio
+import urllib.parse
+from django.contrib.auth.models import User, AnonymousUser
+from rest_framework_simplejwt.tokens import AccessToken
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from django.contrib.auth.models import User
 from .models import Message, Conversation
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.conversation_id = self.scope['url_route']['kwargs']['conversation_id']
         self.room_group_name = f'chat_{self.conversation_id}'
-        self.user = self.scope['user']
+        
+        # Authenticate using JWT token from query params
+        query_string = self.scope.get('query_string', b'').decode('utf-8')
+        query_params = urllib.parse.parse_qs(query_string)
+        token = query_params.get('token', [None])[0]
+        
+        self.user = AnonymousUser()
+        if token:
+            try:
+                access_token = AccessToken(token)
+                user_id = access_token['user_id']
+                self.user = await database_sync_to_async(User.objects.get)(id=user_id)
+            except Exception as e:
+                print(f"WebSocket JWT Auth failed: {e}")
+
+        if self.user.is_anonymous:
+            await self.close()
+            return
+            
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 

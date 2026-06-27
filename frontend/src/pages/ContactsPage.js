@@ -1,67 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { contactsAPI } from '../api/client';
+import React from 'react';
+import Sidebar from '../components/Sidebar';
 
 const ContactsPage = () => {
-  const [contacts, setContacts] = useState([]);
-  const [username, setUsername] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    loadContacts();
-  }, []);
-
-  const loadContacts = async () => {
-    try {
-      const response = await contactsAPI.getContacts();
-      setContacts(response.data);
-    } catch (err) {
-      setError('Failed to load contacts');
-    }
-  };
-
-  const handleAddContact = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await contactsAPI.addContact(username);
-      setUsername('');
-      loadContacts();
-    } catch (err) {
-      setError('Failed to add contact');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <div className="bg-white shadow p-4">
-        <h1 className="text-2xl font-bold text-gray-800">Contacts</h1>
-      </div>
-      <div className="flex-1 p-4 overflow-y-auto">
-        <form onSubmit={handleAddContact} className="bg-white p-4 rounded-lg shadow mb-4">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Add contact by username"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
-            />
-            <button type="submit" disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-              {loading ? 'Adding...' : 'Add'}
-            </button>
+    <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden">
+      {/* Sidebar on the Left */}
+      <Sidebar activeConversationContactId={null} />
+
+      {/* Main Panel Placeholder on the Right */}
+      <div className="flex-1 flex flex-col items-center justify-center bg-slate-950 p-8 text-center relative select-none">
+        {/* Subtle decorative background gradient */}
+        <div className="absolute w-[400px] h-[400px] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute w-[300px] h-[300px] bg-purple-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+        {/* Telegram-style placeholder card */}
+        <div className="max-w-sm flex flex-col items-center gap-4 relative z-10">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-inner">
+            <svg className="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
           </div>
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-        </form>
-        <div className="space-y-2">
-          {contacts.map((contact) => (
-            <div key={contact.id} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
-              <p className="font-bold text-gray-800">{contact.contact_username}</p>
-              <p className="text-sm text-gray-600">{contact.contact_email}</p>
-            </div>
-          ))}
+          <div>
+            <h3 className="text-lg font-bold text-slate-100 mb-1">Select a chat</h3>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Choose a contact from the sidebar or add a new one to start exchanging encrypted messages.
+            </p>
+          </div>
         </div>
       </div>
     </div>
